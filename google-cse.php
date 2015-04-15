@@ -55,6 +55,14 @@ function gcse_request($test = false)
     $options = get_option('gcse_options');
     $q       = html_entity_decode(get_search_query());
 
+    $lang = FALSE;
+    if(isset($_GET['lang'])) {
+        preg_match('/[a-z]{2}/i', $_GET['lang'], $lang_matches);
+        if($lang_matches) {
+            $lang = $lang_matches[0];
+        }
+    }
+
     if(isset($options['key']) && $options['key'] &&
         isset($options['id']) && $options['id']) {
 
@@ -65,7 +73,9 @@ function gcse_request($test = false)
         $start  = isset($wp_query->query_vars['paged']) &&
             $wp_query->query_vars['paged'] ?
             ($wp_query->query_vars['paged']-1)*$num+1 : 1;
-        $params = http_build_query(array(
+
+
+        $request_arr = array(
             'key'         => trim($options['key']),
             'cx'          => trim($options['id']),
             'alt'         => 'json',
@@ -73,8 +83,13 @@ function gcse_request($test = false)
             'start'       => $start,
             'prettyPrint' => 'false',
             'q'           => $q
-            )
         );
+
+        if($lang) {
+            $request_arr['lr'] = 'lang_'.$lang;
+        }
+
+        $params = http_build_query($request_arr);
         $url    = 'https://www.googleapis.com/customsearch/v1?'.$params;
 
         // Check for and return cached response
