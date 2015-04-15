@@ -72,7 +72,9 @@ function gcse_request($test = false)
             'num'         => $num,
             'start'       => $start,
             'prettyPrint' => 'false',
-            'q'           => $q));
+            'q'           => $q
+            )
+        );
         $url    = 'https://www.googleapis.com/customsearch/v1?'.$params;
 
         // Check for and return cached response
@@ -81,7 +83,7 @@ function gcse_request($test = false)
         }
 
         // Request response
-        if(is_wp_error($response = wp_remote_get($url, array('sslverify' => false)))) {
+        if(is_wp_error($response = wp_remote_get($url, array('sslverify' => true)))) {
             return array('error' => array('errors' =>
                 array(array('reason' => $response->get_error_message()))));
         }
@@ -104,7 +106,9 @@ function gcse_request($test = false)
  *
  */
 function gcse_results($posts, $q) {
+
     if($q->is_single !== true && $q->is_search === true) {
+
         global $wp_query;
         $response = gcse_request();
         if(isset($response['items']) && $response['items']) {
